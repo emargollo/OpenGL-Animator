@@ -1,0 +1,19 @@
+#ifndef TEXTURE_H
+#define TEXTURE_H
+
+#include <string>
+#include <GL\glew.h>
+
+class Texture
+{
+public:
+	Texture(const std::string& fileName);
+	virtual ~Texture();
+
+	void Bind(unsigned int unit);
+
+private:
+	GLuint _texture;
+};
+
+#endif
