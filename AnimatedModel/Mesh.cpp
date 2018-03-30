@@ -2,42 +2,28 @@
 #include <vector>
 #include <iostream>
 
-Mesh::Mesh(Vertex* vertices, unsigned int nVertices)
+Mesh::Mesh(Vertex* vertices, unsigned int nVertices, unsigned int *indices, unsigned int nIndices)
 {
-	_drawCount = nVertices;
-
-	glGenVertexArrays(1, &_vao);
-	glBindVertexArray(_vao);
-
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec2> texcoords;
-
-	positions.reserve(nVertices);
-	texcoords.reserve(nVertices);
-
+	IndexedModel model;
 	for (unsigned int i = 0; i < nVertices; ++i)
 	{
-		positions.push_back(*vertices[i].GetPos());
-		texcoords.push_back(*(vertices[i].GetTexCoord()));
+		model.positions.push_back(*vertices[i].GetPos());
+		model.texCoords.push_back(*(vertices[i].GetTexCoord()));
+		model.normals.push_back(*(vertices[i].GetNormal()));
 	}
 
-	glGenBuffers(NUM_BUFFERS, _vbo);
-	
-	//Position
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo[vbo::POSITION]);
-	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions.front(), GL_STATIC_DRAW);
+	for (unsigned int i = 0; i < nIndices; ++i) 
+	{
+		model.indices.push_back(indices[i]);
+	}
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	initModel(model);
+}
 
-	//Texture Coordinates
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo[vbo::TEX_COORD]);
-	glBufferData(GL_ARRAY_BUFFER, texcoords.size() * sizeof(glm::vec2), &texcoords.front(), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindVertexArray(0);
+Mesh::Mesh(const std::string & filename)
+{
+	IndexedModel model = OBJModel(filename).ToIndexedModel();
+	initModel(model);
 }
 
 Mesh::~Mesh()
@@ -49,7 +35,45 @@ void Mesh::Draw()
 {
 	glBindVertexArray(_vao);
 
-	glDrawArrays(GL_TRIANGLES, 0, _drawCount);
+	//glDrawArrays(GL_TRIANGLES, 0, _drawCount);
+	glDrawElements(GL_TRIANGLES, _drawCount, GL_UNSIGNED_INT, 0);
+
+	glBindVertexArray(0);
+}
+
+void Mesh::initModel(IndexedModel model)
+{
+	_drawCount = model.indices.size();
+
+	glGenVertexArrays(1, &_vao);
+	glBindVertexArray(_vao);
+
+	glGenBuffers(vbo::NUM_BUFFERS, _vbo);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[vbo::POSITION]);
+	glBufferData(GL_ARRAY_BUFFER, model.positions.size() * sizeof(glm::vec3), &model.positions.front(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//Texture Coordinates
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[vbo::TEX_COORD]);
+	glBufferData(GL_ARRAY_BUFFER, model.texCoords.size() * sizeof(glm::vec2), &model.texCoords.front(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//Normals
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[vbo::NORMAL]);
+	glBufferData(GL_ARRAY_BUFFER, model.normals.size() * sizeof(glm::vec3), &model.normals.front(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo[vbo::INDEX]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indices.size() * sizeof(model.indices[0]), &model.indices[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 }

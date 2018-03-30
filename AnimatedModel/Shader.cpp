@@ -19,6 +19,7 @@ Shader::Shader(const std::string& filename)
 
 	glBindAttribLocation(_program, 0, "position");
 	glBindAttribLocation(_program, 1, "texCoord");
+	glBindAttribLocation(_program, 2, "normal");
 
 	glLinkProgram(_program);
 	CheckShaderError(_program, GL_LINK_STATUS, true, "Error: Program linking failed. ");
@@ -27,13 +28,17 @@ Shader::Shader(const std::string& filename)
 	CheckShaderError(_program, GL_VALIDATE_STATUS, true, "Error: Program is invalid. ");
 
 	_uniforms[TRANSFORM_U] = glGetUniformLocation(_program, "transform");
+	_uniforms[VIEW_PROJECTION_U] = glGetUniformLocation(_program, "viewProjection");
 }
 
-void Shader::Update(const Transform & transform)
+void Shader::Update(const Transform & transform, const Camera& camera)
 {
 	glm::mat4 model = transform.getModel();
 
+	glm::mat4 viewProjection = camera.GetViewProjection();
+
 	glUniformMatrix4fv(_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(_uniforms[VIEW_PROJECTION_U], 1, GL_FALSE, &viewProjection[0][0]);
 }
 
 void Shader::Bind()

@@ -4,6 +4,7 @@
 #include <string>
 #include <GL\glew.h>
 #include "..\Animation\Transform.h"
+#include "..\Camera\Camera.h"
 
 class Shader
 {
@@ -11,7 +12,7 @@ public:
 	Shader(const std::string& filename);
 	virtual ~Shader();
 
-	void Update(const Transform& transform);
+	void Update(const Transform& transform, const Camera& camera);
 	void Bind();
 
 private:
@@ -20,6 +21,7 @@ private:
 	enum
 	{
 		TRANSFORM_U,
+		VIEW_PROJECTION_U,
 
 		NUM_UNIFORMS
 	};
