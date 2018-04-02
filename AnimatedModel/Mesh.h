@@ -2,7 +2,13 @@
 #define VERTEX_H
 
 #include "glm\glm.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm\gtx\transform.hpp>
+#include "glm\gtx\quaternion.hpp"
 #include "..\Utils\obj_loader.h"
+#include "nlohmann\json.hpp"
+
+using json = nlohmann::json;
 
 class Vertex 
 {
@@ -23,35 +29,44 @@ private:
 };
 #endif
 
-namespace vbo {
-	enum MeshBufferPositions {
-		POSITION,
-		TEX_COORD,
-		NORMAL,
-		INDEX,
-		NUM_BUFFERS
-	};
-}
+
 
 #ifndef MESH_H
 #define MESH_H
 
 #include <GL\glew.h>
+#include <unordered_map>
 
 class Mesh 
 {
 public:
 	Mesh(Vertex* vertices, unsigned int nVertices, unsigned int *indices, unsigned int nIndices);
 	Mesh(const std::string& filename);
+	Mesh(const json& jsonObj);
+	Mesh(const IndexedModel& model);
 	virtual ~Mesh();
 
 	void Draw();
 
 private:
+
+	enum MeshBufferPositions {
+		POSITION,
+		TEX_COORD,
+		NORMAL,
+		JOINT_IDS,
+		JOINT_WEIGHTS,
+		INDEX,
+		NUM_BUFFERS
+	};
+
 	void initModel(IndexedModel model);
 
 	GLuint _vao;
-	GLuint _vbo[vbo::NUM_BUFFERS];
+	GLuint _vbo[NUM_BUFFERS];
 	unsigned int _drawCount;
+	std::unordered_map<std::string, unsigned int> _boneIdMap;
+	std::unordered_map<unsigned int, glm::mat4> _boneOffsetMap;
+
 };
 #endif

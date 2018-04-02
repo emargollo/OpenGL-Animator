@@ -2,10 +2,6 @@
 #include <iostream>
 #include <fstream>
 
-static void CheckShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage);
-static std::string LoadShader(const std::string& filename);
-static GLuint CreateShader(const std::string& text, GLenum shaderType);
-
 Shader::Shader(const std::string& filename) 
 {
 	_program = glCreateProgram();
@@ -56,7 +52,7 @@ Shader::~Shader()
 	glDeleteProgram(_program);
 }
 
-static GLuint CreateShader(const std::string& text, GLenum shaderType)
+GLuint BaseShader::CreateShader(const std::string& text, GLenum shaderType)
 {
 	GLuint shader = glCreateShader(shaderType);
 
@@ -76,7 +72,7 @@ static GLuint CreateShader(const std::string& text, GLenum shaderType)
 	return shader;
 }
 
-static std::string LoadShader(const std::string& filename)
+std::string BaseShader::LoadShader(const std::string& filename)
 {
 	std::ifstream file;
 	file.open((filename).c_str());
@@ -99,7 +95,7 @@ static std::string LoadShader(const std::string& filename)
 	return output;
 }
 
-static void CheckShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage)
+void BaseShader::CheckShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage)
 {
 	GLint success = 0;
 	GLchar error[1024] = { 0 };

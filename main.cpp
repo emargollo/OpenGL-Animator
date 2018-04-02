@@ -7,6 +7,7 @@
 #include <string>
 #include "nlohmann\json.hpp"
 #include <iostream>
+#include "Utils\JSONLoader.h"
 
 static const int DISPLAY_WIDTH = 800;
 static const int DISPLAY_HEIGHT = 600;
@@ -25,9 +26,16 @@ int main(int argc, char** argv) {
 		Vertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)) };
 	unsigned int indices[] = { 0, 1, 2, 3, 2, 1 };
 	Mesh mesh(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices)/sizeof(indices[0]));
+
+	JSONLoader loader(".\\res\\morgana.json");
 	
-	Mesh cube(".\\res\\monkey3.obj");
-	
+	//Mesh cube(".\\res\\monkey3.obj");
+
+	Mesh cube(loader.getIndexedModels()[0]);
+	Mesh cube1(loader.getIndexedModels()[1]);
+	Mesh cube2(loader.getIndexedModels()[2]);
+	Mesh cube3(loader.getIndexedModels()[3]);
+
 	Shader shader(".\\res\\basicShader");
 	//Texture texture(".\\res\\bricks.jpg");
 	Texture texture(".\\res\\c0003_t01_cat102.png");
@@ -57,6 +65,9 @@ int main(int argc, char** argv) {
 		texture.Bind(0);
 		shader.Update(transform, camera);
 		cube.Draw();
+		cube1.Draw();
+		cube2.Draw();
+		cube3.Draw();
 		mesh.Draw();
 
 		display.SwapBuffers();
