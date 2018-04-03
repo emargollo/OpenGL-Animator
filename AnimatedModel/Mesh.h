@@ -37,6 +37,12 @@ private:
 #include <GL\glew.h>
 #include <unordered_map>
 
+struct BoneData
+{
+	glm::mat4 offsetMatrix;
+	glm::mat4 finalTransformation;
+};
+
 class Mesh 
 {
 public:
@@ -47,6 +53,11 @@ public:
 	virtual ~Mesh();
 
 	void Draw();
+
+	std::vector<glm::mat4> GetBoneArray();
+
+	std::unordered_map<std::string, unsigned int> _boneIdMap;
+	std::unordered_map<unsigned int, BoneData> _boneDataMap;
 
 private:
 
@@ -65,8 +76,5 @@ private:
 	GLuint _vao;
 	GLuint _vbo[NUM_BUFFERS];
 	unsigned int _drawCount;
-	std::unordered_map<std::string, unsigned int> _boneIdMap;
-	std::unordered_map<unsigned int, glm::mat4> _boneOffsetMap;
-
 };
 #endif

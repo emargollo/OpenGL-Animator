@@ -17,7 +17,7 @@ public:
 	AnimationShader(const std::string& filename);
 	virtual ~AnimationShader();
 
-	void Update(const Transform& transform, const Camera& camera, glm::mat4 jointTransforms[MAX_JOINTS]);
+	void Update(const Transform& transform, const Camera& camera, std::vector<glm::mat4> jointVector);
 	void Bind();
 
 private:

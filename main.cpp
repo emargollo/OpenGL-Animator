@@ -8,27 +8,26 @@
 #include "nlohmann\json.hpp"
 #include <iostream>
 #include "Utils\JSONLoader.h"
+#include "AnimatedModel\Model.h"
+#include <fstream>
 
 static const int DISPLAY_WIDTH = 800;
 static const int DISPLAY_HEIGHT = 600;
 
-int main(int argc, char** argv) {
-	
-	//nlohmann::json j = nlohmann::json::parse("{\"json\": \"string\"}");
-	//std::cout << j << std::endl;
+void staticOpenGLDraw()
+{
 
 	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Animator");
-
 	Vertex vertices[] = {
 		Vertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)),
 		Vertex(glm::vec3(-0.5, 0.5, 0.0), glm::vec2(0.0, 1.0)),
 		Vertex(glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)),
 		Vertex(glm::vec3(0.5, 0.5, 0.0), glm::vec2(1.0, 1.0)) };
 	unsigned int indices[] = { 0, 1, 2, 3, 2, 1 };
-	Mesh mesh(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices)/sizeof(indices[0]));
+	Mesh mesh(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 
 	JSONLoader loader(".\\res\\morgana.json");
-	
+
 	//Mesh cube(".\\res\\monkey3.obj");
 
 	Mesh cube(loader.getIndexedModels()[0]);
@@ -39,19 +38,20 @@ int main(int argc, char** argv) {
 	Shader shader(".\\res\\basicShader");
 	//Texture texture(".\\res\\bricks.jpg");
 	Texture texture(".\\res\\c0003_t01_cat102.png");
-	Camera camera(glm::vec3(0.0, 1.0, -3), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
+	Camera camera(glm::vec3(0.0, 1.0, -7), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
 	Transform transform;
 
 	float counter = 0.0f;
 
 	SDL_Event event;
-	while (true) {
+	while (true)
+	{
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)
 			{
 			case SDL_QUIT:
-				return 0;
+				return ;
 				break;
 			}
 
@@ -73,5 +73,83 @@ int main(int argc, char** argv) {
 		display.SwapBuffers();
 		counter += 0.01f;
 	}
+}
+
+int main(int argc, char** argv) {
+	
+	/*Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Animator");
+
+	Model model;
+	model.LoadModel(".\\res\\model.json");
+
+	Camera camera(glm::vec3(0.0, 1.0, -7), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
+	Transform transform;
+
+	float counter = 0.0f;
+
+	SDL_Event event;
+	while (true)
+	{
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				return 0;
+				break;
+			}
+		}
+
+		display.Clear(0.0, 0.0, 0.0, 1.0);
+		model.Draw(transform, camera);
+
+		display.SwapBuffers();
+		counter += 0.01f;
+	}*/
+
+	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Animator");
+
+	JSONLoader loader(".\\res\\model.json");
+
+	//Model model;
+	//model.LoadModel(".\\res\\model.json");
+
+	json m;
+	std::ifstream file(".\\res\\model.json");
+	file >> m;
+	file.close();
+
+	Mesh cube(m["meshes"][0]);
+	//Mesh cube2(loader.getIndexedModels()[0]);
+
+	Shader shader(".\\res\\animationShader");
+
+	Camera camera(glm::vec3(0.0, 1.0, -3), 70.0f, (float)DISPLAY_WIDTH / (float)DISPLAY_HEIGHT, 0.1f, 100.0f);
+	Transform transform;
+
+	float counter = 0.0f;
+	SDL_Event event;
+	while (true)
+	{
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				return -1;
+				break;
+			}
+
+		}
+
+		display.Clear(0.0, 0.0, 0.0, 1.0);
+		shader.Bind();
+		shader.Update(transform, camera);
+		cube.Draw();
+
+		display.SwapBuffers();
+		counter += 0.01f;
+	}
+	
 	return 0;
 }

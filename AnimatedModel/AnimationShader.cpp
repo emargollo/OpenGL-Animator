@@ -31,11 +31,15 @@ AnimationShader::AnimationShader(const std::string& filename)
 	_uniforms[JOINT_TRANSFORMS_U] = glGetUniformLocation(_program, "jointTransforms");
 }
 
-void AnimationShader::Update(const Transform & transform, const Camera& camera, glm::mat4 jointTransforms[MAX_JOINTS])
+void AnimationShader::Update(const Transform & transform, const Camera& camera, std::vector<glm::mat4> jointVector)
 {
 	glm::mat4 model = transform.getModel();
-
 	glm::mat4 viewProjection = camera.GetViewProjection();
+	glm::mat4 jointTransforms[MAX_JOINTS];
+	for (unsigned int i = 0; i < (jointVector.size() < MAX_JOINTS ? jointVector.size() : MAX_JOINTS); ++i)
+	{
+		jointTransforms[i] = jointVector[i];
+	}
 
 	glUniformMatrix4fv(_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(_uniforms[VIEW_PROJECTION_U], 1, GL_FALSE, &viewProjection[0][0]);
