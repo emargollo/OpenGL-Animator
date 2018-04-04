@@ -28,8 +28,8 @@ private:
 #include <vector>
 #include "Mesh.h"
 #include "..\Animation\Transform.h"
-#include "..\Camera\Camera.h"
-#include "AnimationShader.h"
+#include "..\Render\Camera.h"
+#include "..\Render\AnimationShader.h"
 #include <memory>
 
 
@@ -48,8 +48,8 @@ public:
 
 	void Draw(Transform position, Camera camera);
 
-	std::vector<std::shared_ptr<Mesh>>	_meshes;
 private:
+	std::vector<std::shared_ptr<Mesh>>	_meshes;
 	glm::mat4			_inverseModelMatrix;
 	Joint				_rootJoint;
 	AnimationShader		_shader;

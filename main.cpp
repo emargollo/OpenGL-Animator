@@ -1,13 +1,12 @@
-#include "Display.h"
+#include "Render\Display.h"
 #include "AnimatedModel\Mesh.h"
-#include "AnimatedModel\Shader.h"
+#include "Render\Shader.h"
 #include "AnimatedModel\Texture.h"
 #include "Animation\Transform.h"
-#include "Camera\Camera.h"
+#include "Render\Camera.h"
 #include <string>
 #include "nlohmann\json.hpp"
 #include <iostream>
-#include "Utils\JSONLoader.h"
 #include "AnimatedModel\Model.h"
 #include <fstream>
 

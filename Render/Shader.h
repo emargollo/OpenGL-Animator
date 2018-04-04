@@ -4,7 +4,7 @@
 #include <string>
 #include <GL\glew.h>
 #include "..\Animation\Transform.h"
-#include "..\Camera\Camera.h"
+#include "Camera.h"
 
 class BaseShader
 {

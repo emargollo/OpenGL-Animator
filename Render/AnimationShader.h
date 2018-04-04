@@ -6,7 +6,7 @@
 #include <vector>
 #include <glm\glm.hpp>
 #include "..\Animation\Transform.h"
-#include "..\Camera\Camera.h"
+#include "Camera.h"
 #include "Shader.h"
 
 static const unsigned int MAX_JOINTS = 50;
