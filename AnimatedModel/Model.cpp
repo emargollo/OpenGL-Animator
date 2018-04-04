@@ -19,19 +19,20 @@ void Model::LoadModel(const std::string & filename)
 
 	for (json jsonMesh : model["meshes"])
 	{
-		Mesh mesh(jsonMesh);
-		_meshes.push_back(mesh);
+		_meshes.push_back(std::make_shared<Mesh>(jsonMesh));
 	}
 	LoadJointHierarchy(model["rootnode"]);
 
-	InitJointHierarchy(_rootJoint, glm::mat4());
+	InitJointHierarchy(_rootJoint, glm::scale(glm::vec3(1)));
 }
 
 void Model::LoadJointHierarchy(json root)
 {
 	glm::vec3 pos(root["pos"]["x"], root["pos"]["y"], root["pos"]["z"]);
 	glm::quat rot(root["rot"]["w"], root["rot"]["x"], root["rot"]["y"], root["rot"]["z"]);
-	glm::mat4 modelMatrix = glm::translate(pos) * glm::toMat4(rot);
+	glm::vec3 scale(root["scale"]["x"], root["scale"]["y"], root["scale"]["z"]);
+
+	glm::mat4 modelMatrix = glm::translate(pos) * glm::toMat4(rot) * glm::scale(scale);
 
 	_inverseModelMatrix = glm::inverse(modelMatrix);
 
@@ -49,7 +50,9 @@ Joint Model::LoadJoint(json joint)
 
 	glm::vec3 pos(joint["pos"]["x"], joint["pos"]["y"], joint["pos"]["z"]);
 	glm::quat rot(joint["rot"]["w"], joint["rot"]["x"], joint["rot"]["y"], joint["rot"]["z"]);
-	glm::mat4 jointMatrix = glm::translate(pos) * glm::toMat4(rot);
+	glm::vec3 scale(joint["scale"]["x"], joint["scale"]["y"], joint["scale"]["z"]);
+
+	glm::mat4 jointMatrix = glm::translate(pos) * glm::toMat4(rot) * glm::scale(scale);
 
 	j.setTransform(jointMatrix);
 	j.setName(joint["name"]);
@@ -77,21 +80,21 @@ void Model::InitJointHierarchy(Joint root, const glm::mat4 & parentTransform)
 
 void Model::UpdateMeshBone(std::string jointName, const glm::mat4 & globalTransform)
 {
-	for (Mesh mesh : _meshes)
+	for (auto mesh : _meshes)
 	{
-		if (mesh._boneIdMap.find(jointName) == mesh._boneIdMap.end()) continue;
-		unsigned int id = mesh._boneIdMap[jointName];
-		mesh._boneDataMap[id].finalTransformation = _inverseModelMatrix * globalTransform * mesh._boneDataMap[id].offsetMatrix;
+		if (mesh->_boneIdMap.find(jointName) == mesh->_boneIdMap.end()) continue;
+		unsigned int id = mesh->_boneIdMap[jointName];
+		mesh->_boneDataMap[id].finalTransformation = _inverseModelMatrix * globalTransform * mesh->_boneDataMap[id].offsetMatrix;
 	}
 }
 
 void Model::Draw(Transform position, Camera camera)
 {
 	_shader.Bind();
-	for (Mesh mesh : _meshes)
+	for (auto mesh : _meshes)
 	{
-		_shader.Update(position, camera, mesh.GetBoneArray());
-		mesh.Draw();
+		_shader.Update(position, camera, mesh->GetBoneArray());
+		mesh->Draw();
 	}
 }
 

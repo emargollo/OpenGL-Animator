@@ -45,8 +45,8 @@ Mesh::Mesh(const json & jsonObj)
 		glm::vec3 pos(vertex["pos"]["x"], vertex["pos"]["y"], vertex["pos"]["z"]);
 		glm::vec2 texcoord(vertex["texcoord"]["x"], vertex["texcoord"]["y"]);
 		glm::vec3 normal(vertex["normal"]["x"], vertex["normal"]["y"], vertex["normal"]["z"]);
-		glm::uvec4 jointId;
-		glm::vec4 jointWeight;
+		glm::uvec4 jointId(0);
+		glm::vec4 jointWeight(0);
 
 		for (unsigned int i = 0; i < vertex["joints"].size(); ++i)
 		{
@@ -81,6 +81,26 @@ Mesh::Mesh(const json & jsonObj)
 		jointWeights.push_back(jointWeight);
 	}
 
+	//load each bone data into two unordered maps to be used when needed to load 
+	for (json bone : jsonObj["bones"])
+	{
+		BoneData data;
+
+		glm::vec3 pos(bone["pos"]["x"], bone["pos"]["y"], bone["pos"]["z"]);
+		glm::quat rot(bone["rot"]["w"], bone["rot"]["x"], bone["rot"]["y"], bone["rot"]["z"]);
+		glm::vec3 scale(bone["scale"]["x"], bone["scale"]["y"], bone["scale"]["z"]);
+
+		glm::mat4 offset = glm::translate(pos) * glm::toMat4(rot) * glm::scale(scale);
+
+		unsigned int id = bone["id"].get<unsigned int>();
+		std::string name = bone["name"].get<std::string>();
+
+		data.offsetMatrix = offset;
+
+		_boneIdMap.insert(std::make_pair(name, id));
+		_boneDataMap.insert(std::make_pair(id, data));
+	}
+
 
 	_drawCount = indices.size();
 
@@ -110,19 +130,19 @@ Mesh::Mesh(const json & jsonObj)
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	////Joint Ids
-	//glBindBuffer(GL_ARRAY_BUFFER, _vbo[JOINT_IDS]);
-	//glBufferData(GL_ARRAY_BUFFER, jointIds.size() * sizeof(glm::uvec4), &jointIds.front(), GL_STATIC_DRAW);
+	//Joint Ids
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[JOINT_IDS]);
+	glBufferData(GL_ARRAY_BUFFER, jointIds.size() * sizeof(glm::uvec4), &jointIds.front(), GL_STATIC_DRAW);
 
-	//glEnableVertexAttribArray(3);
-	//glVertexAttribIPointer(3, 4, GL_UNSIGNED_INT, 0, 0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, 4, GL_UNSIGNED_INT, 0, 0);
 
-	////Joint Weights
-	//glBindBuffer(GL_ARRAY_BUFFER, _vbo[JOINT_WEIGHTS]);
-	//glBufferData(GL_ARRAY_BUFFER, jointWeights.size() * sizeof(glm::vec4), &jointWeights.front(), GL_STATIC_DRAW);
+	//Joint Weights
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[JOINT_WEIGHTS]);
+	glBufferData(GL_ARRAY_BUFFER, jointWeights.size() * sizeof(glm::vec4), &jointWeights.front(), GL_STATIC_DRAW);
 
-	//glEnableVertexAttribArray(4);
-	//glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	//Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo[INDEX]);
@@ -130,24 +150,6 @@ Mesh::Mesh(const json & jsonObj)
 
 	glBindVertexArray(0);
 
-
-	//load each bone data into two unordered maps to be used when needed to load 
-	for (json bone : jsonObj["bones"])
-	{
-		BoneData data;
-
-		glm::vec3 pos(bone["pos"]["x"], bone["pos"]["y"], bone["pos"]["z"]);
-		glm::quat rot(bone["rot"]["w"], bone["rot"]["x"], bone["rot"]["y"], bone["rot"]["z"]);
-		glm::mat4 offset = glm::translate(pos) * glm::toMat4(rot);
-
-		unsigned int id = bone["id"].get<unsigned int>();
-		std::string name = bone["name"].get<std::string>();
-
-		data.offsetMatrix = offset;
-
-		_boneIdMap.insert(std::make_pair(name, id));
-		_boneDataMap.insert(std::make_pair(id, data));
-	}
 }
 
 Mesh::Mesh(const IndexedModel & model)

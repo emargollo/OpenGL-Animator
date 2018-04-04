@@ -32,12 +32,12 @@ void main()
         totalNormal += worldNormal * jointWeights[i];
     }
 
-    totalLocalPos = vec4(position, 1.0);
+    //totalLocalPos = vec4(position, 1.0);
 
 	mat4 modelViewProjection = viewProjection * transform;
 
 	gl_Position = modelViewProjection * totalLocalPos;
 
 	texCoord0 = texCoord;
-    normal0 = (transform * vec4(normal, 0.0)).xyz;
+    normal0 = (totalLocalPos * vec4(normal, 0.0)).xyz;
 }

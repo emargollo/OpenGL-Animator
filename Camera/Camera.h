@@ -11,8 +11,8 @@ public:
 	{
 		_perspective = glm::perspective(fov, aspect, zNear, zFar);
 		_position = pos;
-		_forward = glm::vec3(0, 0, 1);
-		_up = glm::vec3(0, 1, 0);
+		_forward = glm::vec3(0, 1, 0);
+		_up = glm::vec3(0, 0, 1);
 	}
 
 	inline glm::mat4 GetViewProjection() const

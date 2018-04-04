@@ -30,6 +30,7 @@ private:
 #include "..\Animation\Transform.h"
 #include "..\Camera\Camera.h"
 #include "AnimationShader.h"
+#include <memory>
 
 
 class Model
@@ -47,7 +48,7 @@ public:
 
 	void Draw(Transform position, Camera camera);
 
-	std::vector<Mesh>	_meshes;
+	std::vector<std::shared_ptr<Mesh>>	_meshes;
 private:
 	glm::mat4			_inverseModelMatrix;
 	Joint				_rootJoint;
@@ -56,5 +57,4 @@ private:
 	Joint				LoadJoint(json joint);
 
 };
-
 #endif

@@ -43,7 +43,7 @@ void AnimationShader::Update(const Transform & transform, const Camera& camera, 
 
 	glUniformMatrix4fv(_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(_uniforms[VIEW_PROJECTION_U], 1, GL_FALSE, &viewProjection[0][0]);
-	glUniformMatrix4fv(_uniforms[VIEW_PROJECTION_U], MAX_JOINTS, GL_FALSE, glm::value_ptr(jointTransforms[0]));
+	glUniformMatrix4fv(_uniforms[JOINT_TRANSFORMS_U], MAX_JOINTS, GL_FALSE, glm::value_ptr(jointTransforms[0]));
 
 	/*for (unsigned int i = 0; i < jointTransforms.size(); ++i)
 	{
