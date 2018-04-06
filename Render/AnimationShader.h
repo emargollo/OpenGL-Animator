@@ -5,7 +5,7 @@
 #include <GL\glew.h>
 #include <vector>
 #include <glm\glm.hpp>
-#include "..\Animation\Transform.h"
+#include "..\Animator\Transform.h"
 #include "Camera.h"
 #include "Shader.h"
 

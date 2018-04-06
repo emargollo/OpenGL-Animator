@@ -2,7 +2,7 @@
 #include "AnimatedModel\Mesh.h"
 #include "Render\Shader.h"
 #include "AnimatedModel\Texture.h"
-#include "Animation\Transform.h"
+#include "Animator\Transform.h"
 #include "Render\Camera.h"
 #include <string>
 #include "nlohmann\json.hpp"
@@ -26,8 +26,19 @@ int main(int argc, char** argv) {
 	float counter = 0.0f;
 
 	SDL_Event event;
+
+	Uint64 now = SDL_GetPerformanceCounter();
+	Uint64 last = 0;
+	double deltaTime = 0;
+
+	model.getAnimator()->startAnimation("");
+
 	while (true)
 	{
+		last = now;
+		now = SDL_GetPerformanceCounter();
+
+		deltaTime = (double)((now - last) / (double) SDL_GetPerformanceFrequency());
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)
@@ -39,10 +50,12 @@ int main(int argc, char** argv) {
 		}
 
 		display.Clear(0.0, 0.0, 0.0, 1.0);
+		model.Update(deltaTime);
 		model.Draw(transform, camera);
 
 		display.SwapBuffers();
 		counter += 0.01f;
+
 	}
 
 	return 0;

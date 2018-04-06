@@ -3,7 +3,7 @@
 
 #include <string>
 #include <GL\glew.h>
-#include "..\Animation\Transform.h"
+#include "..\Animator\Transform.h"
 #include "Camera.h"
 
 class BaseShader

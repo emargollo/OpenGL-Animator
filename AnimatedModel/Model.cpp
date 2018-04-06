@@ -6,8 +6,10 @@
 
 using json = nlohmann::json;
 
-Model::Model() : _shader(".\\res\\animationShader")
+Model::Model() : _shader(".\\res\\animationShader") 
 {
+	_animator = std::make_shared<Animator>(this);
+	_rootJoint = std::make_shared<Joint>();
 }
 
 void Model::LoadModel(const std::string & filename)
@@ -20,6 +22,10 @@ void Model::LoadModel(const std::string & filename)
 	for (json jsonMesh : model["meshes"])
 	{
 		_meshes.push_back(std::make_shared<Mesh>(jsonMesh));
+	}
+	for (json jsonAnimation : model["animations"])
+	{
+		_animator->addAnimation(jsonAnimation);
 	}
 	LoadJointHierarchy(model["rootnode"]);
 
@@ -36,17 +42,17 @@ void Model::LoadJointHierarchy(json root)
 
 	_inverseModelMatrix = glm::inverse(modelMatrix);
 
-	_rootJoint.setTransform(modelMatrix);
-	_rootJoint.setName(root["name"]);
+	_rootJoint->setTransform(modelMatrix);
+	_rootJoint->setName(root["name"]);
 	for (json child : root["children"])
 	{
-		_rootJoint.addChild(LoadJoint(child));
+		_rootJoint->addChild(LoadJoint(child));
 	}
 }
 
-Joint Model::LoadJoint(json joint)
+std::shared_ptr<Joint> Model::LoadJoint(json joint)
 {
-	Joint j;
+	std::shared_ptr<Joint> j = std::make_shared<Joint>();
 
 	glm::vec3 pos(joint["pos"]["x"], joint["pos"]["y"], joint["pos"]["z"]);
 	glm::quat rot(joint["rot"]["w"], joint["rot"]["x"], joint["rot"]["y"], joint["rot"]["z"]);
@@ -54,25 +60,25 @@ Joint Model::LoadJoint(json joint)
 
 	glm::mat4 jointMatrix = glm::translate(pos) * glm::toMat4(rot) * glm::scale(scale);
 
-	j.setTransform(jointMatrix);
-	j.setName(joint["name"]);
+	j->setTransform(jointMatrix);
+	j->setName(joint["name"]);
 
 	for (json child : joint["children"])
 	{
-		j.addChild(LoadJoint(child));
+		j->addChild(LoadJoint(child));
 	}
 
 	return j;
 }
 
-void Model::InitJointHierarchy(Joint root, const glm::mat4 & parentTransform)
+void Model::InitJointHierarchy(std::shared_ptr<Joint> root, const glm::mat4 & parentTransform)
 {
-	glm::mat4 globalTransform = parentTransform * root.getTransform();
+	glm::mat4 globalTransform = parentTransform * root->getTransform();
 
 	//Insert configure bones final transforms for each mesh
-	UpdateMeshBone(root.getName(), globalTransform);
+	UpdateMeshBone(root->getName(), globalTransform);
 
-	for (Joint j : root.getChildren())
+	for (std::shared_ptr<Joint> j : root->getChildren())
 	{
 		InitJointHierarchy(j, globalTransform);
 	}
@@ -88,6 +94,11 @@ void Model::UpdateMeshBone(std::string jointName, const glm::mat4 & globalTransf
 	}
 }
 
+void Model::Update(double elapsedTime)
+{
+	_animator->Update(elapsedTime);
+}
+
 void Model::Draw(Transform position, Camera camera)
 {
 	_shader.Bind();
@@ -96,5 +107,10 @@ void Model::Draw(Transform position, Camera camera)
 		_shader.Update(position, camera, mesh->GetBoneArray());
 		mesh->Draw();
 	}
+}
+
+std::shared_ptr<Joint> Model::FindJoint(const std::string& jointName)
+{
+	return _rootJoint->Find(jointName);
 }
 
