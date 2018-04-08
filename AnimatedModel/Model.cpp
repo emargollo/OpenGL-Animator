@@ -10,6 +10,7 @@ Model::Model() : _shader(".\\res\\animationShader")
 {
 	_animator = std::make_shared<Animator>(this);
 	_rootJoint = std::make_shared<Joint>();
+	_texture = std::make_shared<Texture>();
 }
 
 void Model::LoadModel(const std::string & filename)
@@ -27,6 +28,12 @@ void Model::LoadModel(const std::string & filename)
 	{
 		_animator->addAnimation(jsonAnimation);
 	}
+
+	if (model.find("texture") != model.end())
+	{
+		_texture->setTexture(".\\res\\" + model["texture"].get<std::string>());
+	}
+
 	LoadJointHierarchy(model["rootnode"]);
 
 	InitJointHierarchy(_rootJoint, glm::scale(glm::vec3(1)));
@@ -104,7 +111,9 @@ void Model::Draw(Transform position, Camera camera)
 	_shader.Bind();
 	for (auto mesh : _meshes)
 	{
+		_texture->Bind(0);
 		_shader.Update(position, camera, mesh->GetBoneArray());
+
 		mesh->Draw();
 	}
 }

@@ -8,6 +8,8 @@ class Texture
 {
 public:
 	Texture(const std::string& fileName);
+	Texture();
+	void setTexture(const std::string& fileName);
 	virtual ~Texture();
 
 	void Bind(unsigned int unit);

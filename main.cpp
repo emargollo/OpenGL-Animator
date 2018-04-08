@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		display.Clear(0.0, 0.0, 0.0, 1.0);
+		display.Clear(1.0, 1.0, 1.0, 1.0);
 		model.Update(deltaTime);
 		model.Draw(transform, camera);
 

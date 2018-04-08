@@ -1,4 +1,5 @@
 #include "Animation.h"
+#include <iostream>
 
 Animation::Animation(const json & jsonObj)
 {
@@ -18,7 +19,7 @@ Animation::Animation(const json & jsonObj)
 		}
 		for (json rotKey : bone["rot_keys"])
 		{
-			glm::quat rot(rotKey["w"], rotKey["x"], rotKey["y"], rotKey["z"]);
+			glm::quat rot(glm::degrees(rotKey["w"].get<float>()), glm::degrees(rotKey["x"].get<float>()), glm::degrees(rotKey["y"].get<float>()), glm::degrees(rotKey["z"].get<float>()));
 			double time = rotKey["time"];
 			jAnim._rotationKeys.insert(std::make_pair(time, rot));
 		}

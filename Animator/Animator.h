@@ -27,6 +27,7 @@ private:
 	glm::vec3 GetInterpolatedPos(std::pair<double, glm::vec3> start, std::pair<double, glm::vec3> end);
 	glm::quat GetInterpolatedRot(std::pair<double, glm::quat> start, std::pair<double, glm::quat> end);
 	glm::vec3 GetInterpolatedScale(std::pair<double, glm::vec3> start, std::pair<double, glm::vec3> end);
+	glm::quat Slerp(glm::quat v0, glm::quat v1, float t);
 
 };
 

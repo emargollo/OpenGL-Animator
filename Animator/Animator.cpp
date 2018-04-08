@@ -61,6 +61,7 @@ std::unordered_map<std::string, glm::mat4> Animator::CalculateJointTransforms()
 		glm::vec3 scale = GetInterpolatedScale(*(std::prev(scaleNext)), *scaleNext);
 
 		glm::mat4 transform =  glm::translate(pos) * glm::toMat4(rot) * glm::scale(scale);
+
 		jointTransforms.insert(std::make_pair(jointKeys._name, transform));
 	}
 	return jointTransforms;
@@ -79,8 +80,46 @@ glm::quat Animator::GetInterpolatedRot(std::pair<double, glm::quat> start, std::
 {
 	double delta = end.first - start.first;
 	double factor = (_animationTime - start.first) / delta;
-	glm::quat rot = glm::mix(start.second, end.second, (float)factor);
-	return rot;
+	glm::quat rot = slerp(start.second, end.second, (float)factor);
+	return glm::normalize(rot);
+}
+
+//Adapted from wikipedia: https://en.wikipedia.org/wiki/Slerp#Source_code
+glm::quat Animator::Slerp(glm::quat v0, glm::quat v1, float t) {
+	// Only unit quaternions are valid rotations.
+	// Normalize to avoid undefined behavior.
+	v0 = glm::normalize(v0);
+	v1 = glm::normalize(v1);
+
+	// Compute the cosine of the angle between the two vectors.
+	float dot = glm::dot(v0, v1);
+
+	// If the dot product is negative, the quaternions
+	// have opposite handed-ness and slerp won't take
+	// the shorter path. Fix by reversing one quaternion.
+	if (dot < 0.0f) {
+		v1 = -v1;
+		dot = -dot;
+	}
+
+	//const double DOT_THRESHOLD = 0.9995;
+	//if (dot > DOT_THRESHOLD) {
+	//	// If the inputs are too close for comfort, linearly interpolate
+	//	// and normalize the result.
+
+	//	glm::quat result = v0 + t * (v1 – v0);
+	//	result = glm::normalize(result);
+	//	return result;
+	//}
+
+	glm::clamp(dot, -1.0f, 1.0f);           // Robustness: Stay within domain of acos()
+	float theta_0 = acos(dot);  // theta_0 = angle between input vectors
+	float theta = theta_0 * t;    // theta = angle between v0 and result
+
+	float s0 = cos(theta) - dot * sin(theta) / sin(theta_0);  // == sin(theta_0 - theta) / sin(theta_0)
+	float s1 = sin(theta) / sin(theta_0);
+
+	return (s0 * v0) + (s1 * v1);
 }
 
 glm::vec3 Animator::GetInterpolatedScale(std::pair<double, glm::vec3> start, std::pair<double, glm::vec3> end)

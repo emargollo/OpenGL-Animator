@@ -45,6 +45,7 @@ private:
 #include "..\Render\Camera.h"
 #include "..\Render\AnimationShader.h"
 #include "..\Animator\Animator.h"
+#include "Texture.h"
 #include <memory>
 
 
@@ -71,10 +72,12 @@ public:
 	std::shared_ptr<Joint> FindJoint(const std::string& jointName);
 
 private:
-	std::vector<std::shared_ptr<Mesh>>	_meshes;
-	glm::mat4							_inverseModelMatrix;
-	std::shared_ptr<Joint>				_rootJoint;
 	AnimationShader						_shader;
+	glm::mat4							_inverseModelMatrix;
+
+	std::vector<std::shared_ptr<Mesh>>	_meshes;
+	std::shared_ptr<Texture>			_texture;
+	std::shared_ptr<Joint>				_rootJoint;
 	std::shared_ptr<Animator>			_animator;
 
 	std::shared_ptr<Joint>				LoadJoint(json joint);

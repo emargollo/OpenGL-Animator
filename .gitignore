@@ -26,7 +26,7 @@ bld/
 [Ll]og/
 
 /res/*.jpg
-/res/*.png
+#/res/*.png
 
 # Visual Studio 2015 cache/options directory
 .vs/
