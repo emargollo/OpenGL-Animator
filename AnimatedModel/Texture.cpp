@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include "..\Utils\stb_image.h"
+#include "..\deps\stb_image.h"
 #include <iostream>
 #include <cassert>
 
